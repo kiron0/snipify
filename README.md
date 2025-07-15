@@ -1,163 +1,127 @@
-# Favium 🎨
+# Snipify 📸
 
-[![npm version](https://img.shields.io/npm/v/favium.svg?style=flat-square)](https://www.npmjs.com/package/favium)
-[![npm downloads](https://img.shields.io/npm/dm/favium.svg?style=flat-square)](https://www.npmjs.com/package/favium)
+[![npm version](https://img.shields.io/npm/v/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
+[![npm downloads](https://img.shields.io/npm/dm/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg?style=flat-square)](https://www.typescriptlang.org/)
 
-**Favium is a lightweight package that allows you to create ICO and PNG formatted favicons from a canvas element.**
+**Snipify is a production-ready toolkit for capturing, resizing, and exporting high-quality web screenshots using Puppeteer and Sharp.**
 
-_"Craft Your Perfect Favicon with Ease"_ 🚀
+*"From page to pixel-perfect screenshot—automate it all."* 🚀
 
 ---
 
 ## 🌟 Features
 
-- **Multi-Format Support** - Generate ICO and PNG favicons
-- **Flexible Sizing** - Create favicons at any size with quality-preserving resize
-- **Zero Dependencies** - Pure TypeScript implementation
-- **Browser-Focused** - Optimized for web applications
-- **TypeScript First** - Full type safety and inference
-- **Bundled Output** - Convenient bundle of common favicon sizes
+* **Full & Viewport Modes** – Capture the entire page or just the visible area
+* **Custom Device Emulation** – Desktop, mobile, tablet & more with custom user-agents
+* **Smart Resource Blocking** – Skip heavy/irrelevant assets like analytics & media
+* **Image Processing with Sharp** – Resize, crop, compress effortlessly
+* **Pure TypeScript** – Strictly typed and modern API
+* **No Bloat** – Minimal dependencies, fast and efficient
 
 ---
 
 ## 📦 Installation
 
 ```bash
-npm install favium
+npm install snipify
 # or
-yarn add favium
+yarn add snipify
 # or
-bun add favium
+bun add snipify
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-```typescript
-import { FaviconComposer } from "favium";
+```ts
+import { captureScreenshot } from "snipify";
 
-// Create a canvas
-const canvas = document.createElement("canvas");
-canvas.width = 512;
-canvas.height = 512;
-const ctx = canvas.getContext("2d");
-if (ctx) {
-  ctx.fillStyle = "blue";
-  ctx.fillRect(0, 0, 512, 512);
-}
-
-const favicon = new FaviconComposer(canvas);
-
-// Generate a full favicon bundle
-const bundle = favicon.bundle();
-
-// Generate specific formats
-const ico = favicon.ico([16, 32, 64]);
-const png64 = favicon.png(64);
-```
-
----
-
-## 📚 Core Features
-
-### 🖼️ Favicon Bundle
-
-```typescript
-import { FaviconComposer } from "favium";
-
-const canvas = document.createElement("canvas");
-// ... canvas setup ...
-
-const favicon = new FaviconComposer(canvas);
-const bundle = favicon.bundle();
-// Returns {
-//   ico: string,    // Multi-size ICO (16, 32, 48)
-//   png16: string,
-//   png32: string,
-//   png150: string,
-//   png180: string,
-//   png192: string,
-//   png512: string
-// }
-```
-
-### 🌐 ICO Generation
-
-```typescript
-import { FaviconComposer } from "favium";
-
-const favicon = new FaviconComposer(canvas);
-const ico = favicon.ico([16, 32, 64]); // Custom sizes
-// Returns "data:image/x-icon;base64,..."
-```
-
-### 🖌️ PNG Generation
-
-```typescript
-import { FaviconComposer } from "favium";
-
-const favicon = new FaviconComposer(canvas);
-const png32 = favicon.png(32); // Any size
-// Returns "data:image/png;base64,..."
-```
-
-### 📏 Canvas Resizing
-
-```typescript
-import { FaviconComposer } from "favium";
-
-const favicon = new FaviconComposer(canvas);
-const resized = favicon.resize(64); // Returns HTMLCanvasElement
-```
-
-### 🖼️ Text Icon Generator
-
-```typescript
-import { TextIconGenerator, FaviconComposer } from "favium";
-
-const canvas = document.createElement("canvas");
-const textIcon = new TextIconGenerator(canvas);
-textIcon.generate({
-  text: "A",
-  backgroundColor: "#ff0000",
-  cornerRadius: 15,
-  width: 512,
-  height: 512,
+const { base64 } = await captureScreenshot("https://example.com", "desktop", {
+  mode: "full",
+  format: "jpeg",
+  quality: 80,
 });
-
-const favicon = new FaviconComposer(canvas);
-const bundle = favicon.bundle();
 ```
 
 ---
 
-## 💡 Why Favium?
+## ✨ Core API
 
-- **Versatile**: Supports both ICO and PNG formats with custom sizes
-- **TypeScript Optimized**: Full type safety and IDE support
-- **Lightweight**: No external dependencies, minimal footprint
-- **Quality**: Progressive resizing for optimal image quality
-- **Simple API**: Intuitive interface for favicon generation
+### 📸 `captureScreenshot(url, device?, options?)`
+
+Capture a screenshot and get a base64 string.
+
+```ts
+const result = await captureScreenshot("https://example.com", "mobile", {
+  mode: "viewport",
+  format: "png",
+});
+```
+
+#### Parameters
+
+| Name      | Type                             | Description        |                |                                    |
+| --------- | -------------------------------- | ------------------ | -------------- | ---------------------------------- |
+| `url`     | `string`                         | Web page URL       |                |                                    |
+| `device`  | \`'desktop' \\                   | 'mobile' \\        | 'tablet' ...\` | Emulated device (default: desktop) |
+| `options` | `{ mode, format, quality, ... }` | Screenshot options |                |                                    |
+
+---
+
+## 📏 Resize Options
+
+You can resize screenshots automatically:
+
+```ts
+await captureScreenshot("https://example.com", "desktop", {
+  mode: "full",
+  fixedSize: { width: 800, height: 600 },
+});
+```
+
+---
+
+## ⚙️ Options
+
+```ts
+interface ScreenshotOptions {
+  format?: 'png' | 'jpeg';
+  quality?: number;
+  mode?: 'full' | 'viewport';
+  waitForSelector?: string;
+  delay?: number;
+  headless?: boolean;
+  blockResources?: boolean;
+  clip?: { x: number; y: number; width: number; height: number };
+  fixedSize?: { width: number; height: number };
+}
+```
+
+---
+
+## 🧠 Why Snipify?
+
+* **Production Ready** – Battle-tested setup with error handling
+* **Fast** – Puppeteer + Sharp combo for fast, clean output
+* **Zero UI Dependency** – Works anywhere Node.js runs
+* **Typed First** – Built for TypeScript users
+* **Modular** – Customize device presets, screenshot settings & more
 
 ---
 
 ## 🛠️ Contributing
 
 ```bash
-# Clone repo
-git clone https://github.com/kiron0/favium.git
-
-# Install dependencies
+git clone https://github.com/kiron0/snipify.git
+cd snipify
 bun install
-
-# Build project
 bun run build
 ```
 
-Contributions are welcome! Please submit pull requests or open issues on GitHub.
+Issues and PRs are warmly welcome 🤝
 
 ---
 
@@ -165,4 +129,6 @@ Contributions are welcome! Please submit pull requests or open issues on GitHub.
 
 MIT © Toufiq Hasan Kiron
 
-_"From canvas to favicon, your icon journey starts here."_ - Favium Motto 🎨
+> *“Snip it. Sharpen it. Ship it.”* – Snipify Motto 📸
+
+---
