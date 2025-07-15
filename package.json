@@ -44,5 +44,8 @@
     "web-capture",
     "batch-processing",
     "production-ready"
-  ]
+  ],
+  "engines": {
+    "node": ">=16"
+  }
 }

@@ -6,7 +6,7 @@ export default defineConfig({
   dts: true,
   clean: true,
   minify: "terser",
-  target: "es2018",
+  target: "esnext",
   treeshake: true,
   esbuildOptions(options) {
     options.drop = ["console", "debugger"];

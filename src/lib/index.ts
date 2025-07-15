@@ -11,7 +11,7 @@ function normalizeScreenshotOptions(options: ScreenshotOptions = {}) {
     waitForSelector,
     delay = 0,
     headless = true,
-    blockResources = true,
+    blockResources = false,
     clip = null,
     fixedSize = null,
   } = options;

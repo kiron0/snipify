@@ -1,5 +1,11 @@
 # Snipify 📸
 
+> ⚠️ **Node.js Only**
+>
+> This package is designed for Node.js environments only. It uses Node.js APIs and dependencies (`puppeteer`, `sharp`) that are not available in browsers. Do **not** attempt to use this package in browser environments.
+>
+> **Requirements:** Node.js v16 or higher
+
 [![npm version](https://img.shields.io/npm/v/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
 [![npm downloads](https://img.shields.io/npm/dm/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -75,8 +81,8 @@ const results = await captureProductionScreenshots({
 
 console.log(results);
 // [
-//   { size: 'blog-header', type: 'jpeg' },
-//   { size: 'instagram-post', type: 'jpeg' }
+//   { base64: 'data:image/jpeg;base64,...', size: 'blog-header', type: 'jpeg' },
+//   { base64: 'data:image/jpeg;base64,...', size: 'instagram-post', type: 'jpeg' }
 // ]
 ```
 
@@ -101,11 +107,11 @@ const result = await captureScreenshot({
 
 #### Parameters
 
-| Name      | Type                             | Description        |                |                                    |
-| --------- | -------------------------------- | ------------------ | -------------- | ---------------------------------- |
-| `url`     | `string`                         | Web page URL       |                |                                    |
-| `device`  | \`'desktop' \\                   | 'mobile' \\        | 'tablet' ...\` | Emulated device (default: desktop) |
-| `options` | `{ mode, format, quality, ... }` | Screenshot options |                |                                    |
+| Name      | Type                                | Description           |
+| --------- | ----------------------------------- | --------------------- |
+| `url`     | `string`                            | Web page URL          |
+| `device`  | `"desktop" \| "mobile" \| "tablet"` | default - `"desktop"` |
+| `options` | `{ mode, format, quality, ... }`    | Screenshot options    |
 
 ---
 
