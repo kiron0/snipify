@@ -1,0 +1,47 @@
+{
+  "name": "favium",
+  "description": "Favium is a lightweight package that allows you to create ICO and PNG formatted favicons from a canvas element.",
+  "version": "0.0.6",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/kiron0/favium"
+  },
+  "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "format": "prettier --write \"**/*.{ts,json}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "terser": "^5.39.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "favicon",
+    "ico",
+    "png",
+    "canvas",
+    "favicons",
+    "favicons-generator",
+    "favicons-creator",
+    "favicon-generator",
+    "favicon-creator"
+  ],
+  "dependencies": {
+    "puppeteer": "^24.12.1",
+    "sharp": "^0.34.3"
+  }
+}
