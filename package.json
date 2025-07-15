@@ -1,23 +1,24 @@
 {
   "name": "snipify",
   "description": "A production-ready tool for capturing and processing web screenshots with Puppeteer and Sharp.",
-  "version": "0.0.4",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "version": "0.0.6",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.js"
+      "import": "./dist/index.mjs"
     }
   },
   "scripts": {
     "build": "tsup",
     "build:watch": "tsup --watch",
-    "format": "prettier --write \"**/*.{ts,json}\""
+    "format": "prettier --write \"**/*.{ts,json,md}\""
+  },
+  "dependencies": {
+    "puppeteer": "^24.12.1",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "prettier": "^3.5.3",
@@ -27,10 +28,6 @@
   },
   "author": "toufiqhasankiron <toufiqhasankiron@icloud.com>",
   "license": "MIT",
-  "type": "module",
-  "engines": {
-    "node": ">=16.0.0"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kiron0/snipify.git"
@@ -41,15 +38,11 @@
   "homepage": "https://github.com/kiron0/snipify#readme",
   "keywords": [
     "screenshot",
-    "puppeteer",
-    "web-capture",
-    "automation",
     "image-resize",
-    "production-ready",
-    "batch-processing"
-  ],
-  "dependencies": {
-    "puppeteer": "^24.12.1",
-    "sharp": "^0.34.3"
-  }
+    "puppeteer",
+    "automation",
+    "web-capture",
+    "batch-processing",
+    "production-ready"
+  ]
 }

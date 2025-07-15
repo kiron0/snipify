@@ -1,17 +1,13 @@
-import { Browser, launch, Page } from "puppeteer";
+import { launch, Page } from "puppeteer";
 import sharp from "sharp";
 import { DevicePresetKey, ScreenshotOptions } from "../interface";
-import { DEVICE_PRESETS } from "../utils";
+import { DEVICE_PRESETS, PRODUCTION_SIZES } from "../utils";
 
-export async function captureScreenshot(
-  url: string,
-  device: DevicePresetKey = "desktop",
-  options: ScreenshotOptions = {},
-): Promise<{ base64: string }> {
+function normalizeScreenshotOptions(options: ScreenshotOptions = {}) {
   const {
     format = "png",
     quality = 100,
-    mode = "full",
+    fullPage = true,
     waitForSelector,
     delay = 0,
     headless = true,
@@ -20,11 +16,50 @@ export async function captureScreenshot(
     fixedSize = null,
   } = options;
 
+  return {
+    format,
+    quality,
+    fullPage,
+    waitForSelector,
+    delay,
+    headless,
+    blockResources,
+    clip,
+    fixedSize,
+  };
+}
+
+export async function captureScreenshot({
+  url,
+  device = "desktop",
+  options = {},
+}: {
+  url: string;
+  device?: DevicePresetKey;
+  options?: ScreenshotOptions;
+}): Promise<{
+  base64: string;
+  size: string;
+  device: DevicePresetKey;
+  type: string;
+}> {
+  const {
+    format,
+    quality,
+    fullPage,
+    waitForSelector,
+    delay,
+    headless,
+    blockResources,
+    clip,
+    fixedSize,
+  } = normalizeScreenshotOptions(options);
+
   if (!DEVICE_PRESETS[device]) {
     throw new Error(`Unknown device preset: ${device}`);
   }
 
-  const browser: Browser = await launch({
+  const browser = await launch({
     headless,
     args: [
       "--no-sandbox",
@@ -46,14 +81,22 @@ export async function captureScreenshot(
     if (blockResources) {
       await page.setRequestInterception(true);
       page.on("request", (req) => {
-        const type = req.resourceType();
-        const reqUrl = req.url();
-        if (
-          ["media", "websocket", "font", "stylesheet"].includes(type) ||
-          /analytics|tracking/.test(reqUrl)
-        ) {
-          req.abort();
-        } else {
+        try {
+          const resourceType = req.resourceType();
+          const url = req.url();
+          if (
+            resourceType === "media" ||
+            (resourceType === "image" &&
+              (url.includes(".mp4") || url.includes(".webm"))) ||
+            resourceType === "websocket" ||
+            url.includes("analytics") ||
+            url.includes("tracking")
+          ) {
+            req.abort();
+          } else {
+            req.continue();
+          }
+        } catch {
           req.continue();
         }
       });
@@ -61,15 +104,18 @@ export async function captureScreenshot(
 
     await page.goto(url, { waitUntil: "networkidle0", timeout: 30000 });
 
-    if (waitForSelector) await page.waitForSelector(waitForSelector);
-    if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+    if (waitForSelector) {
+      await page.waitForSelector(waitForSelector, { timeout: 10000 });
+    }
+
+    if (delay > 0) await new Promise((res) => setTimeout(res, delay));
 
     const screenshotOptions = {
-      fullPage: !clip && mode === "full",
+      fullPage: clip ? false : fullPage,
       type: format,
       ...(format === "jpeg" && { quality }),
       ...(clip && { clip }),
-    } as const;
+    };
 
     let screenshotBuffer = await page.screenshot(screenshotOptions);
 
@@ -82,27 +128,106 @@ export async function captureScreenshot(
       );
     }
 
-    const base64 = Buffer.from(screenshotBuffer).toString("base64");
-    return { base64 };
+    const base64 = `data:image/${format};base64,${Buffer.from(screenshotBuffer).toString("base64")}`;
+
+    return {
+      base64,
+      size: fixedSize ? `${fixedSize.width}x${fixedSize.height}` : "original",
+      device,
+      type: format,
+    };
   } finally {
     if (page) await page.close();
     await browser.close();
   }
 }
 
+export async function captureProductionScreenshots({
+  url,
+  device = "desktop",
+  sizes = ["thumbnail", "card", "social-media"],
+  options = {},
+}: {
+  url: string;
+  device?: DevicePresetKey;
+  sizes?: (keyof typeof PRODUCTION_SIZES)[];
+  options?: ScreenshotOptions;
+}): Promise<{ base64: string; size: string; type: string }[]> {
+  const {
+    format,
+    quality,
+    fullPage,
+    waitForSelector,
+    delay,
+    headless,
+    blockResources,
+    clip,
+  } = normalizeScreenshotOptions(options);
+
+  const results: {
+    base64: string;
+    size: string;
+    type: string;
+  }[] = [];
+
+  const baseScreenshot = await captureScreenshot({
+    url,
+    device,
+    options: {
+      format,
+      quality,
+      fullPage,
+      waitForSelector,
+      delay,
+      headless,
+      blockResources,
+      clip: clip ?? undefined,
+    },
+  });
+
+  for (const sizeKey of sizes) {
+    try {
+      const size = PRODUCTION_SIZES[sizeKey];
+      if (!size?.width || !size?.height) {
+        continue;
+      }
+
+      const buffer = Buffer.from(baseScreenshot.base64.split(",")[1], "base64");
+      const resizedBuffer = await resizeImage(buffer, size, format, quality);
+
+      results.push({
+        base64: `data:image/${format};base64,${resizedBuffer.toString("base64")}`,
+        size: sizeKey,
+        type: format,
+      });
+    } catch (error: any) {
+      console.error(`✗ Failed to create ${sizeKey}: ${error.message}`);
+    }
+  }
+
+  return results;
+}
+
 async function resizeImage(
   buffer: Buffer,
   size: { width: number; height: number },
-  format: "png" | "jpeg",
-  quality: number,
-): Promise<Buffer> {
-  let image = sharp(buffer).resize(size.width, size.height, {
-    fit: "cover",
-    position: "top",
-  });
+  format = "png",
+  quality = 100,
+) {
+  try {
+    let sharpInstance = sharp(buffer).resize(size.width, size.height, {
+      fit: "cover",
+      position: "top",
+    });
 
-  if (format === "jpeg") image = image.jpeg({ quality });
-  else if (format === "png") image = image.png({ compressionLevel: 9 });
+    if (format === "jpeg") {
+      sharpInstance = sharpInstance.jpeg({ quality });
+    } else if (format === "png") {
+      sharpInstance = sharpInstance.png({ compressionLevel: 9 });
+    }
 
-  return await image.toBuffer();
+    return await sharpInstance.toBuffer();
+  } catch (error: any) {
+    throw new Error(`Failed to resize image: ${error.message}`);
+  }
 }

@@ -7,18 +7,18 @@
 
 **Snipify is a production-ready toolkit for capturing, resizing, and exporting high-quality web screenshots using Puppeteer and Sharp.**
 
-*"From page to pixel-perfect screenshot—automate it all."* 🚀
+_"From page to pixel-perfect screenshot—automate it all."_ 🚀
 
 ---
 
 ## 🌟 Features
 
-* **Full & Viewport Modes** – Capture the entire page or just the visible area
-* **Custom Device Emulation** – Desktop, mobile, tablet & more with custom user-agents
-* **Smart Resource Blocking** – Skip heavy/irrelevant assets like analytics & media
-* **Image Processing with Sharp** – Resize, crop, compress effortlessly
-* **Pure TypeScript** – Strictly typed and modern API
-* **No Bloat** – Minimal dependencies, fast and efficient
+- **Full & Viewport Modes** – Capture the entire page or just the visible area
+- **Custom Device Emulation** – Desktop, mobile, tablet & more with custom user-agents
+- **Smart Resource Blocking** – Skip heavy/irrelevant assets like analytics & media
+- **Image Processing with Sharp** – Resize, crop, compress effortlessly
+- **Pure TypeScript** – Strictly typed and modern API
+- **No Bloat** – Minimal dependencies, fast and efficient
 
 ---
 
@@ -36,14 +36,48 @@ bun add snipify
 
 ## 🚀 Quick Start
 
+### 1. Single Screenshot: `captureScreenshot`
+
 ```ts
 import { captureScreenshot } from "snipify";
 
-const { base64 } = await captureScreenshot("https://example.com", "desktop", {
-  mode: "full",
-  format: "jpeg",
-  quality: 80,
+const result = await captureScreenshot({
+  url: "https://example.com",
+  device: "desktop",
+  options: {
+    format: "jpeg",
+    quality: 80,
+  },
 });
+
+console.log(result);
+// {
+//   base64: 'data:image/jpeg;base64,...',
+//   size: 'original',
+//   device: 'desktop',
+//   type: 'jpeg'
+// }
+```
+
+### 2. Batch/Production Screenshots: `captureProductionScreenshots`
+
+```ts
+import { captureProductionScreenshots } from "snipify";
+
+const results = await captureProductionScreenshots({
+  url: "https://example.com",
+  sizes: ["blog-header", "instagram-post"],
+  options: {
+    format: "jpeg",
+    quality: 80,
+  },
+});
+
+console.log(results);
+// [
+//   { size: 'blog-header', type: 'jpeg' },
+//   { size: 'instagram-post', type: 'jpeg' }
+// ]
 ```
 
 ---
@@ -55,9 +89,13 @@ const { base64 } = await captureScreenshot("https://example.com", "desktop", {
 Capture a screenshot and get a base64 string.
 
 ```ts
-const result = await captureScreenshot("https://example.com", "mobile", {
-  mode: "viewport",
-  format: "png",
+const result = await captureScreenshot({
+  url: "https://example.com",
+  device: "mobile",
+  options: {
+    mode: "viewport",
+    format: "png",
+  },
 });
 ```
 
@@ -76,9 +114,12 @@ const result = await captureScreenshot("https://example.com", "mobile", {
 You can resize screenshots automatically:
 
 ```ts
-await captureScreenshot("https://example.com", "desktop", {
-  mode: "full",
-  fixedSize: { width: 800, height: 600 },
+await captureScreenshot({
+  url: "https://example.com",
+  device: "mobile",
+  options: {
+    fixedSize: { width: 800, height: 600 },
+  },
 });
 ```
 
@@ -88,9 +129,9 @@ await captureScreenshot("https://example.com", "desktop", {
 
 ```ts
 interface ScreenshotOptions {
-  format?: 'png' | 'jpeg';
+  format?: "png" | "jpeg";
   quality?: number;
-  mode?: 'full' | 'viewport';
+  fullPage?: boolean;
   waitForSelector?: string;
   delay?: number;
   headless?: boolean;
@@ -104,11 +145,11 @@ interface ScreenshotOptions {
 
 ## 🧠 Why Snipify?
 
-* **Production Ready** – Battle-tested setup with error handling
-* **Fast** – Puppeteer + Sharp combo for fast, clean output
-* **Zero UI Dependency** – Works anywhere Node.js runs
-* **Typed First** – Built for TypeScript users
-* **Modular** – Customize device presets, screenshot settings & more
+- **Production Ready** – Battle-tested setup with error handling
+- **Fast** – Puppeteer + Sharp combo for fast, clean output
+- **Zero UI Dependency** – Works anywhere Node.js runs
+- **Typed First** – Built for TypeScript users
+- **Modular** – Customize device presets, screenshot settings & more
 
 ---
 
@@ -129,6 +170,6 @@ Issues and PRs are warmly welcome 🤝
 
 MIT © Toufiq Hasan Kiron
 
-> *“Snip it. Sharpen it. Ship it.”* – Snipify Motto 📸
+> _“Snip it. Sharpen it. Ship it.”_ – Snipify Motto 📸
 
 ---

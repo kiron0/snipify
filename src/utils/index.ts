@@ -24,3 +24,17 @@ export const DEVICE_PRESETS = {
       "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)...Safari/604.1",
   },
 } as const;
+
+export const PRODUCTION_SIZES = {
+  thumbnail: { width: 300, height: 200 },
+  card: { width: 400, height: 300 },
+  "social-media": { width: 1200, height: 630 },
+  "instagram-post": { width: 1080, height: 1080 },
+  "instagram-story": { width: 1080, height: 1920 },
+  "youtube-thumbnail": { width: 1280, height: 720 },
+  "blog-header": { width: 800, height: 400 },
+  "email-banner": { width: 600, height: 200 },
+  "preview-small": { width: 200, height: 150 },
+  "preview-medium": { width: 400, height: 300 },
+  "preview-large": { width: 800, height: 600 },
+} as const;
