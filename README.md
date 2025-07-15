@@ -1,11 +1,5 @@
 # Snipify 📸
 
-> ⚠️ **Node.js Only**
->
-> This package is designed for Node.js environments only. It uses Node.js APIs and dependencies (`puppeteer`, `sharp`) that are not available in browsers. Do **not** attempt to use this package in browser environments.
->
-> **Requirements:** Node.js v16 or higher
-
 [![npm version](https://img.shields.io/npm/v/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
 [![npm downloads](https://img.shields.io/npm/dm/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -31,12 +25,68 @@ _"From page to pixel-perfect screenshot—automate it all."_ 🚀
 ## 📦 Installation
 
 ```bash
+# Install globally for CLI usage
+npm install -g snipify
+
+# Install locally for programmatic usage
 npm install snipify
-# or
-yarn add snipify
-# or
-bun add snipify
 ```
+
+---
+
+## 🖥️ CLI Usage
+
+Snipify comes with a powerful CLI for quick screenshots and batch production exports right from your terminal.
+
+### Usage
+
+```bash
+snipify [URL] [OPTIONS]
+```
+
+#### Arguments
+- `URL`                Website URL (default: http://example.com/)
+
+#### Options
+- `--device=DEVICE`    Device preset (see list below; default: `mobile`)
+- `--size=SIZE`        Production size preset (see table below)
+- `--production`       Generate all common production sizes
+- `--output=DIR`       Output directory (default: `./screenshots`)
+- `--help`, `-h`       Show help
+
+#### Device Presets
+- desktop
+- laptop
+- tablet
+- mobile
+- mobile-large
+
+#### Production Sizes
+
+| Name               | Dimensions      |
+|--------------------|----------------|
+| thumbnail          | 300x200        |
+| card               | 400x300        |
+| social-media       | 1200x630       |
+| instagram-post     | 1080x1080      |
+| instagram-story    | 1080x1920      |
+| youtube-thumbnail  | 1280x720       |
+| blog-header        | 800x400        |
+| email-banner       | 600x200        |
+| preview-small      | 200x150        |
+| preview-medium     | 400x300        |
+| preview-large      | 800x600        |
+
+### Examples
+
+```bash
+snipify                                   # Basic mobile screenshot
+snipify https://example.com --device=desktop                # Desktop screenshot
+snipify https://example.com --device=mobile --size=thumbnail    # Mobile thumbnail
+snipify https://example.com --device=desktop --production       # All production sizes
+```
+
+> Screenshots are saved to the output directory (default: `./screenshots`).
 
 ---
 

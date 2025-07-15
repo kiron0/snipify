@@ -1,12 +1,18 @@
+import { mkdir, writeFile } from "fs/promises";
+import { dirname, join } from "path";
 import { launch, Page } from "puppeteer";
 import sharp from "sharp";
+import { fileURLToPath } from "url";
 import { DevicePresetKey, ScreenshotOptions } from "../interface";
 import { DEVICE_PRESETS, PRODUCTION_SIZES } from "../utils";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 function normalizeScreenshotOptions(options: ScreenshotOptions = {}) {
   const {
+    outputPath,
     format = "png",
-    quality = 100,
+    quality = 90,
     fullPage = true,
     waitForSelector,
     delay = 0,
@@ -17,6 +23,7 @@ function normalizeScreenshotOptions(options: ScreenshotOptions = {}) {
   } = options;
 
   return {
+    outputPath,
     format,
     quality,
     fullPage,
@@ -37,13 +44,9 @@ export async function captureScreenshot({
   url: string;
   device?: DevicePresetKey;
   options?: ScreenshotOptions;
-}): Promise<{
-  base64: string;
-  size: string;
-  device: DevicePresetKey;
-  type: string;
-}> {
+}) {
   const {
+    outputPath,
     format,
     quality,
     fullPage,
@@ -56,7 +59,9 @@ export async function captureScreenshot({
   } = normalizeScreenshotOptions(options);
 
   if (!DEVICE_PRESETS[device]) {
-    throw new Error(`Unknown device preset: ${device}`);
+    throw new Error(
+      `Unknown device preset: ${device}. Available: ${Object.keys(DEVICE_PRESETS).join(", ")}`,
+    );
   }
 
   const browser = await launch({
@@ -74,7 +79,9 @@ export async function captureScreenshot({
 
   try {
     page = await browser.newPage();
+
     const { viewport, userAgent } = DEVICE_PRESETS[device];
+
     await page.setViewport(viewport);
     await page.setUserAgent(userAgent);
 
@@ -128,14 +135,12 @@ export async function captureScreenshot({
       );
     }
 
-    const base64 = `data:image/${format};base64,${Buffer.from(screenshotBuffer).toString("base64")}`;
+    if (outputPath) {
+      await saveScreenshot(Buffer.from(screenshotBuffer), outputPath);
+      console.log(`Screenshot saved to: ${outputPath}`);
+    }
 
-    return {
-      base64,
-      size: fixedSize ? `${fixedSize.width}x${fixedSize.height}` : "original",
-      device,
-      type: format,
-    };
+    return screenshotBuffer;
   } finally {
     if (page) await page.close();
     await browser.close();
@@ -152,60 +157,74 @@ export async function captureProductionScreenshots({
   device?: DevicePresetKey;
   sizes?: (keyof typeof PRODUCTION_SIZES)[];
   options?: ScreenshotOptions;
-}): Promise<{ base64: string; size: string; type: string }[]> {
+}) {
   const {
-    format,
-    quality,
-    fullPage,
-    waitForSelector,
-    delay,
-    headless,
-    blockResources,
-    clip,
-  } = normalizeScreenshotOptions(options);
+    outputDir = join(__dirname, "screenshots"),
+    format = "png",
+    quality = 90,
+  } = options;
 
-  const results: {
-    base64: string;
-    size: string;
-    type: string;
-  }[] = [];
+  console.log(`Capturing production screenshots for: ${url}`);
+  console.log(`Sizes: ${sizes.join(", ")}`);
+
+  const results = [];
 
   const baseScreenshot = await captureScreenshot({
     url,
     device,
     options: {
-      format,
-      quality,
-      fullPage,
-      waitForSelector,
-      delay,
-      headless,
-      blockResources,
-      clip: clip ?? undefined,
+      ...options,
+      outputPath: undefined,
+      fullPage: true,
     },
   });
 
   for (const sizeKey of sizes) {
     try {
       const size = PRODUCTION_SIZES[sizeKey];
-      if (!size?.width || !size?.height) {
+      if (!size.width || !size.height) {
+        console.warn(`Unknown size preset: ${sizeKey}, skipping...`);
         continue;
       }
 
-      const buffer = Buffer.from(baseScreenshot.base64.split(",")[1], "base64");
-      const resizedBuffer = await resizeImage(buffer, size, format, quality);
+      const resizedBuffer = await resizeImage(
+        Buffer.from(baseScreenshot),
+        size,
+        format,
+        quality,
+      );
+      const filename = await generateFilename(url, device, format, sizeKey);
+      const outputPath = join(outputDir, filename);
+
+      await saveScreenshot(resizedBuffer, outputPath);
 
       results.push({
-        base64: `data:image/${format};base64,${resizedBuffer.toString("base64")}`,
         size: sizeKey,
-        type: format,
+        dimensions: size,
+        buffer: resizedBuffer,
+        path: outputPath,
+        fileSize: `${(resizedBuffer.length / 1024).toFixed(2)} KB`,
       });
+
+      console.log(
+        `✓ ${sizeKey} (${size.width}x${size.height}): ${(resizedBuffer.length / 1024).toFixed(2)} KB`,
+      );
     } catch (error: any) {
       console.error(`✗ Failed to create ${sizeKey}: ${error.message}`);
     }
   }
 
   return results;
+}
+
+async function saveScreenshot(buffer: Buffer, filePath: string) {
+  try {
+    const dir = dirname(filePath);
+    await mkdir(dir, { recursive: true });
+    await writeFile(filePath, buffer);
+  } catch (error: any) {
+    throw new Error(`Failed to save screenshot: ${error.message}`);
+  }
 }
 
 async function resizeImage(
@@ -230,4 +249,33 @@ async function resizeImage(
   } catch (error: any) {
     throw new Error(`Failed to resize image: ${error.message}`);
   }
+}
+
+export async function generateFilename(
+  url: string,
+  device: DevicePresetKey,
+  format: "png" | "jpeg" = "png",
+  size?:
+    | {
+        width: number;
+        height: number;
+      }
+    | string,
+) {
+  const domain = new URL(url).hostname.replace(/\./g, "-");
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/[:.]/g, "-")
+    .split("T")[0];
+
+  let sizeStr = "";
+  if (size) {
+    if (typeof size === "string") {
+      sizeStr = `-${size}`;
+    } else if (size.width && size.height) {
+      sizeStr = `-${size.width}x${size.height}`;
+    }
+  }
+
+  return `screenshot-${domain}-${device}${sizeStr}-${timestamp}.${format}`;
 }

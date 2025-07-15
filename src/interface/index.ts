@@ -3,6 +3,8 @@ import { DEVICE_PRESETS } from "../utils";
 export type DevicePresetKey = keyof typeof DEVICE_PRESETS;
 
 export interface ScreenshotOptions {
+  outputPath?: string;
+  outputDir?: string;
   format?: "png" | "jpeg";
   quality?: number;
   fullPage?: boolean;

@@ -6,12 +6,12 @@
     "strictNullChecks": true,
     "target": "ES2022",
     "moduleResolution": "Node10",
-    "module": "CommonJS",
+    "module": "esnext",
     "declaration": true,
     "isolatedModules": true,
     "noEmit": true,
     "outDir": "dist"
   },
-  "include": ["src", "test.ts"],
+  "include": ["src", "test.ts", "bin"],
   "exclude": ["node_modules"]
 }

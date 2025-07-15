@@ -1,8 +1,11 @@
 {
   "name": "snipify",
   "description": "A production-ready tool for capturing and processing web screenshots with Puppeteer and Sharp.",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "main": "./dist/index.js",
+  "bin": {
+    "snipify": "bin/cli.js"
+  },
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
