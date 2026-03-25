@@ -1,5 +1,5 @@
 import { execFile as execFileCallback } from "child_process";
-import { mkdtemp, rm, unlink, writeFile } from "fs/promises";
+import { mkdtemp, readFile, rm, unlink, writeFile } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 import { fileURLToPath } from "url";
@@ -73,8 +73,33 @@ describe("packed tarball", () => {
         throw new Error("Install directory was not prepared.");
       }
 
-      const binPath = join(installDir, "node_modules", ".bin", "snipify");
-      const { stdout } = await execFile(binPath, ["--help"], {
+      const installedPackageJsonPath = join(
+        installDir,
+        "node_modules",
+        "snipify",
+        "package.json",
+      );
+      const installedPackageJson = JSON.parse(
+        await readFile(installedPackageJsonPath, "utf8"),
+      ) as {
+        bin?: string | Record<string, string>;
+      };
+      const binRelativePath =
+        typeof installedPackageJson.bin === "string"
+          ? installedPackageJson.bin
+          : installedPackageJson.bin?.snipify;
+
+      if (!binRelativePath) {
+        throw new Error("Installed tarball does not expose a snipify bin path.");
+      }
+
+      const binPath = join(
+        installDir,
+        "node_modules",
+        "snipify",
+        binRelativePath,
+      );
+      const { stdout } = await execFile(process.execPath, [binPath, "--help"], {
         cwd: installDir,
       });
 
