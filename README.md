@@ -100,28 +100,10 @@ npx snipify@latest https://example.com --device=desktop --production         # A
 
 ---
 
-## Testing
-
-```bash
-npm test
-npm run test:build
-npm run test:smoke
-npm run test:pack
-SNIPIFY_RUN_LIVE_E2E=1 npm run test:e2e:live
-```
-
-- `npm test` runs the default local suite without packaging-side concurrency.
-- `npm run test:build` verifies the built artifact directly.
-- `npm run test:smoke` verifies the built CLI prints help successfully.
-- `npm run test:pack` packs the module, installs the tarball into a temp project, and executes the installed bin.
-- `npm run test:e2e:live` is opt-in and performs a real networked screenshot capture against `https://example.com` by default.
-
----
-
 ## License
 
 MIT © Toufiq Hasan Kiron
 
-> _“Snip it. Sharpen it. Ship it.”_ – Snipify Motto 
+> _“Snip it. Sharpen it. Ship it.”_ – Snipify Motto
 
 ---
