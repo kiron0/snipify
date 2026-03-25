@@ -10,6 +10,10 @@ const execFile = promisify(execFileCallback);
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const rootDir = fileURLToPath(new URL("../", import.meta.url));
 const npmCacheDir = join(tmpdir(), "snipify-npm-cache");
+const installEnv = {
+  ...process.env,
+  PUPPETEER_SKIP_DOWNLOAD: "true",
+};
 
 let tarballPath: string | undefined;
 let installDir: string | undefined;
@@ -47,6 +51,7 @@ describe("packed tarball", () => {
       ["install", tarballPath, "--cache", npmCacheDir],
       {
         cwd: installDir,
+        env: installEnv,
       },
     );
   }, 240000);
