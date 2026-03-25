@@ -23,3 +23,11 @@ public
 
 # Storybook build outputs
 .out
+
+# Package manager
+pnpm-lock.yaml
+bun.lockb
+bun.lock
+yarn.lock
+package-lock.json
+npm-shrinkwrap.json
