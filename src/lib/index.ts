@@ -4,7 +4,7 @@ import { launch, Page } from "puppeteer";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 import { DevicePresetKey, ScreenshotOptions } from "../interface";
-import { DEVICE_PRESETS, PRODUCTION_SIZES } from "../utils";
+import { DEVICE_PRESETS, PRODUCTION_SIZE_KEYS, PRODUCTION_SIZES } from "../utils";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -150,7 +150,7 @@ export async function captureScreenshot({
 export async function captureProductionScreenshots({
   url,
   device = "desktop",
-  sizes = ["thumbnail", "card", "social-media"],
+  sizes = PRODUCTION_SIZE_KEYS,
   options = {},
 }: {
   url: string;
@@ -175,7 +175,6 @@ export async function captureProductionScreenshots({
     options: {
       ...options,
       outputPath: undefined,
-      fullPage: true,
     },
   });
 
@@ -265,8 +264,7 @@ export async function generateFilename(
   const domain = new URL(url).hostname.replace(/\./g, "-");
   const timestamp = new Date()
     .toISOString()
-    .replace(/[:.]/g, "-")
-    .split("T")[0];
+    .replace(/[:.]/g, "-");
 
   let sizeStr = "";
   if (size) {

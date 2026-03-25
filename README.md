@@ -1,60 +1,58 @@
-# Snipify 📸
+# Snipify
 
 [![npm version](https://img.shields.io/npm/v/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
 [![npm downloads](https://img.shields.io/npm/dm/snipify.svg?style=flat-square)](https://www.npmjs.com/package/snipify)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg?style=flat-square)](https://www.typescriptlang.org/)
 
-**Snipify is a production-ready toolkit for capturing, resizing, and exporting high-quality web screenshots using Puppeteer and Sharp.**
+**Snipify is a CLI tool for capturing, resizing, and exporting high-quality web screenshots using Puppeteer and Sharp.**
 
-_"From page to pixel-perfect screenshot—automate it all."_ 🚀
+_"From page to pixel-perfect screenshot—automate it all."_
 
 ---
 
-## 🌟 Features
+## Features
 
 - **Full & Viewport Modes** – Capture the entire page or just the visible area
 - **Custom Device Emulation** – Desktop, mobile, tablet & more with custom user-agents
 - **Smart Resource Blocking** – Skip heavy/irrelevant assets like analytics & media
 - **Image Processing with Sharp** – Resize, crop, compress effortlessly
-- **Pure TypeScript** – Strictly typed and modern API
+- **CLI First** – Focused on terminal usage without a public Node API
 - **No Bloat** – Minimal dependencies, fast and efficient
 
 ---
 
-## 📦 Installation
-
-```bash
-# Install globally for CLI usage
-npm install -g snipify
-
-# Install locally for programmatic usage
-npm install snipify
-```
-
----
-
-## 🖥️ CLI Usage
+## CLI Usage
 
 Snipify comes with a powerful CLI for quick screenshots and batch production exports right from your terminal.
+
+Node.js 18 or newer is required.
 
 ### Usage
 
 ```bash
-snipify [URL] [OPTIONS]
+npx snipify@latest [URL] [OPTIONS]
 ```
 
 #### Arguments
-- `URL`                Website URL (default: http://example.com/)
+
+- `URL` Website URL (default: http://example.com/)
 
 #### Options
-- `--device=DEVICE`    Device preset (see list below; default: `mobile`)
-- `--size=SIZE`        Production size preset (see table below)
-- `--production`       Generate all common production sizes
-- `--output=DIR`       Output directory (default: `./screenshots`)
-- `--help`, `-h`       Show help
+
+- `--device=DEVICE` Device preset (see list below; default: `mobile`)
+- `--size=SIZE` Production size preset (see table below)
+- `--production` Generate all production sizes listed below
+- `--output=DIR` Output directory (default: `./screenshots`)
+- `--format=FORMAT` Output format: `png`, `jpeg` (default: `png`)
+- `--quality=VALUE` JPEG quality from `0` to `100` (default: `90`)
+- `--delay=MS` Wait before capture in milliseconds (default: `1000`)
+- `--wait-for-selector=SELECTOR` Wait for a CSS selector before capture
+- `--block-resources` Block media, analytics, tracking, and websocket requests
+- `--viewport` Capture only the current viewport instead of the full page, including in production mode
+- `--help`, `-h` Show help
 
 #### Device Presets
+
 - desktop
 - laptop
 - tablet
@@ -63,169 +61,65 @@ snipify [URL] [OPTIONS]
 
 #### Production Sizes
 
-| Name               | Dimensions      |
-|--------------------|----------------|
-| thumbnail          | 300x200        |
-| card               | 400x300        |
-| social-media       | 1200x630       |
-| instagram-post     | 1080x1080      |
-| instagram-story    | 1080x1920      |
-| youtube-thumbnail  | 1280x720       |
-| blog-header        | 800x400        |
-| email-banner       | 600x200        |
-| preview-small      | 200x150        |
-| preview-medium     | 400x300        |
-| preview-large      | 800x600        |
+| Name              | Dimensions |
+| ----------------- | ---------- |
+| thumbnail         | 300x200    |
+| card              | 400x300    |
+| social-media      | 1200x630   |
+| instagram-post    | 1080x1080  |
+| instagram-story   | 1080x1920  |
+| youtube-thumbnail | 1280x720   |
+| blog-header       | 800x400    |
+| email-banner      | 600x200    |
+| preview-small     | 200x150    |
+| preview-medium    | 400x300    |
+| preview-large     | 800x600    |
 
 ### Examples
 
 ```bash
-snipify                                   # Basic mobile screenshot
-snipify https://example.com --device=desktop                # Desktop screenshot
-snipify https://example.com --device=mobile --size=thumbnail    # Mobile thumbnail
-snipify https://example.com --device=desktop --production       # All production sizes
+npx snipify@latest                                                                 # Basic mobile screenshot
+npx snipify@latest https://example.com --device=desktop                              # Desktop screenshot
+npx snipify@latest https://example.com --device=mobile --size=thumbnail   # Mobile thumbnail
+npx snipify@latest https://example.com --viewport --format=jpeg --quality=80
+npx snipify@latest https://example.com --wait-for-selector=.app --delay=1500
+npx snipify@latest https://example.com --block-resources --output=./shots
+npx snipify@latest https://example.com --device=desktop --production         # All production sizes
 ```
 
 > Screenshots are saved to the output directory (default: `./screenshots`).
 
 ---
 
-## 🚀 Quick Start
-
-### 1. Single Screenshot: `captureScreenshot`
-
-```ts
-import { captureScreenshot } from "snipify";
-
-const result = await captureScreenshot({
-  url: "https://example.com",
-  device: "desktop",
-  options: {
-    format: "jpeg",
-    quality: 80,
-  },
-});
-
-console.log(result);
-// {
-//   base64: 'data:image/jpeg;base64,...',
-//   size: 'original',
-//   device: 'desktop',
-//   type: 'jpeg'
-// }
-```
-
-### 2. Batch/Production Screenshots: `captureProductionScreenshots`
-
-```ts
-import { captureProductionScreenshots } from "snipify";
-
-const results = await captureProductionScreenshots({
-  url: "https://example.com",
-  sizes: ["blog-header", "instagram-post"],
-  options: {
-    format: "jpeg",
-    quality: 80,
-  },
-});
-
-console.log(results);
-// [
-//   { base64: 'data:image/jpeg;base64,...', size: 'blog-header', type: 'jpeg' },
-//   { base64: 'data:image/jpeg;base64,...', size: 'instagram-post', type: 'jpeg' }
-// ]
-```
-
----
-
-## ✨ Core API
-
-### 📸 `captureScreenshot(url, device?, options?)`
-
-Capture a screenshot and get a base64 string.
-
-```ts
-const result = await captureScreenshot({
-  url: "https://example.com",
-  device: "mobile",
-  options: {
-    mode: "viewport",
-    format: "png",
-  },
-});
-```
-
-#### Parameters
-
-| Name      | Type                                | Description           |
-| --------- | ----------------------------------- | --------------------- |
-| `url`     | `string`                            | Web page URL          |
-| `device`  | `"desktop" \| "mobile" \| "tablet"` | default - `"desktop"` |
-| `options` | `{ mode, format, quality, ... }`    | Screenshot options    |
-
----
-
-## 📏 Resize Options
-
-You can resize screenshots automatically:
-
-```ts
-await captureScreenshot({
-  url: "https://example.com",
-  device: "mobile",
-  options: {
-    fixedSize: { width: 800, height: 600 },
-  },
-});
-```
-
----
-
-## ⚙️ Options
-
-```ts
-interface ScreenshotOptions {
-  format?: "png" | "jpeg";
-  quality?: number;
-  fullPage?: boolean;
-  waitForSelector?: string;
-  delay?: number;
-  headless?: boolean;
-  blockResources?: boolean;
-  clip?: { x: number; y: number; width: number; height: number };
-  fixedSize?: { width: number; height: number };
-}
-```
-
----
-
-## 🧠 Why Snipify?
+## Why Snipify?
 
 - **Production Ready** – Battle-tested setup with error handling
 - **Fast** – Puppeteer + Sharp combo for fast, clean output
-- **Zero UI Dependency** – Works anywhere Node.js runs
-- **Typed First** – Built for TypeScript users
-- **Modular** – Customize device presets, screenshot settings & more
+- **CLI Focused** – Built strictly for terminal-based screenshot workflows
+- **Simple Distribution** – Ships as a command, not a reusable runtime API
 
 ---
 
-## 🛠️ Contributing
+## Testing
 
 ```bash
-git clone https://github.com/kiron0/snipify.git
-cd snipify
-bun install
-bun run build
+npm test
+npm run test:smoke
+npm run test:pack
+SNIPIFY_RUN_LIVE_E2E=1 npm run test:e2e:live
 ```
 
-Issues and PRs are warmly welcome 🤝
+- `npm test` runs the unit and build-level test suite.
+- `npm run test:smoke` verifies the built CLI prints help successfully.
+- `npm run test:pack` packs the module, installs the tarball into a temp project, and executes the installed bin.
+- `npm run test:e2e:live` is opt-in and performs a real networked screenshot capture against `https://example.com` by default.
 
 ---
 
-## 📜 License
+## License
 
 MIT © Toufiq Hasan Kiron
 
-> _“Snip it. Sharpen it. Ship it.”_ – Snipify Motto 📸
+> _“Snip it. Sharpen it. Ship it.”_ – Snipify Motto 
 
 ---

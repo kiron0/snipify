@@ -38,3 +38,7 @@ export const PRODUCTION_SIZES = {
   "preview-medium": { width: 400, height: 300 },
   "preview-large": { width: 800, height: 600 },
 } as const;
+
+export const PRODUCTION_SIZE_KEYS = Object.keys(PRODUCTION_SIZES) as Array<
+  keyof typeof PRODUCTION_SIZES
+>;

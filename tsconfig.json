@@ -12,6 +12,6 @@
     "noEmit": true,
     "outDir": "dist"
   },
-  "include": ["src", "test.ts", "bin"],
+  "include": ["src", "tests", "test.ts", "bin"],
   "exclude": ["node_modules"]
 }

@@ -1,21 +1,17 @@
 {
   "name": "snipify",
-  "description": "A production-ready tool for capturing and processing web screenshots with Puppeteer and Sharp.",
-  "version": "0.1.0",
-  "main": "./dist/index.js",
+  "description": "A CLI tool for capturing and processing web screenshots with Puppeteer and Sharp.",
+  "version": "0.1.1",
+  "type": "module",
   "bin": {
-    "snipify": "bin/cli.js"
-  },
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    }
+    "snipify": "dist/index.js"
   },
   "scripts": {
     "build": "tsup",
+    "test": "vitest run",
+    "test:pack": "vitest run tests/tarball.test.ts",
+    "test:smoke": "npm run build && node dist/index.js --help",
+    "test:e2e:live": "vitest run tests/live-e2e.test.ts",
     "build:watch": "tsup --watch",
     "format": "prettier --write \"**/*.{ts,json,md}\""
   },
@@ -27,28 +23,32 @@
     "prettier": "^3.5.3",
     "terser": "^5.39.0",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.1"
   },
-  "author": "toufiqhasankiron <toufiqhasankiron@icloud.com>",
+  "author": "Toufiq Hasan Kiron <hello@kiron.dev>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kiron0/snipify.git"
+    "url": "https://github.com/kiron0/snipify"
   },
   "bugs": {
     "url": "https://github.com/kiron0/snipify/issues"
   },
-  "homepage": "https://github.com/kiron0/snipify#readme",
+  "homepage": "https://snipify.js.org",
   "keywords": [
+    "cli",
     "screenshot",
-    "image-resize",
     "puppeteer",
-    "automation",
     "web-capture",
-    "batch-processing",
-    "production-ready"
+    "automation"
   ],
   "engines": {
-    "node": ">=16"
-  }
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }
