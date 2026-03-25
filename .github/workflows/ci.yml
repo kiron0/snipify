@@ -45,6 +45,9 @@ jobs:
       - name: Run test suite
         run: npm test
 
+      - name: Run built artifact test
+        run: npm run test:build
+
       - name: Run built CLI smoke test
         run: npm run test:smoke
 
